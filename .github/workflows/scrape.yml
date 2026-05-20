@@ -5,6 +5,9 @@ on:
     - cron: "0 6 * * *"   # täglich 7:00 Uhr (GitHub = UTC, also 6 UTC = 7 MEZ)
   workflow_dispatch:        # auch manuell auslösbar
 
+permissions:
+  contents: write
+
 jobs:
   scrape:
     runs-on: ubuntu-latest

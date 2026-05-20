@@ -63,7 +63,7 @@ def scrape_staatstheater():
     url = f"{BASE}/spielplan/"
     print(f"Scraping: {url}")
     try:
-        r = requests.get(url, headers=HEADERS, timeout=12)
+        r = requests.get(url, headers=HEADERS, timeout=5)
         r.raise_for_status()
     except requests.RequestException as e:
         print(f"  Fehler: {e}")
@@ -122,7 +122,7 @@ def scrape_staatstheater():
 def debug():
     """Zeigt Seitenstruktur zur Anpassung der Selektoren."""
     url = f"{BASE}/spielplan/"
-    r = requests.get(url, headers=HEADERS, timeout=12)
+    r = requests.get(url, headers=HEADERS, timeout=5)
     soup = BeautifulSoup(r.content, "lxml")
     print(f"Titel: {soup.title.string if soup.title else 'kein Titel'}")
     print(f"Status: {r.status_code}")

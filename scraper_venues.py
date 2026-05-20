@@ -50,7 +50,7 @@ def generischer_scraper(url, basis_url, quelle, ort, kategorie, selektoren):
     """Versucht mehrere Selektor-Strategien und gibt Events zurück."""
     print(f"Scraping: {url}")
     try:
-        r = requests.get(url, headers=HEADERS, timeout=12)
+        r = requests.get(url, headers=HEADERS, timeout=5)
         r.raise_for_status()
     except requests.RequestException as e:
         print(f"  Fehler: {e}")
@@ -217,7 +217,7 @@ def scrape_eintracht():
     print("Scraping: eintracht.com/spiele/")
     try:
         r = requests.get("https://www.eintracht.com/spiele/spielplan/",
-                         headers=HEADERS, timeout=12)
+                         headers=HEADERS, timeout=5)
         r.raise_for_status()
     except requests.RequestException as e:
         print(f"  Fehler: {e}")
