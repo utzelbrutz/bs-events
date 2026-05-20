@@ -5,3 +5,7 @@ events_*.json
 debug_*.py
 check_*.py
 .claude/
+ci_out.txt
+ci_err.txt
+test_out.txt
+test_err.txt
