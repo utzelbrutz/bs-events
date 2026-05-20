@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+aktualisieren.log
+events_*.json
+debug_*.py
+check_*.py
+.claude/

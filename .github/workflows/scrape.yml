@@ -1,0 +1,33 @@
+name: Events täglich aktualisieren
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # täglich 7:00 Uhr (GitHub = UTC, also 6 UTC = 7 MEZ)
+  workflow_dispatch:        # auch manuell auslösbar
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Abhängigkeiten installieren
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Scraper ausführen
+        run: python scrape_for_ci.py
+
+      - name: events.json committen
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add events.json
+          git diff --staged --quiet || git commit -m "Events aktualisiert $(date +'%d.%m.%Y %H:%M')"
+          git push

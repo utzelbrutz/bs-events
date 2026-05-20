@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Was ist heute in Braunschweig?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rot: #c8102e;
+      --rot-dark: #a50d26;
+      --bg: #f2f3f5;
+      --card: #ffffff;
+      --text: #111;
+      --muted: #666;
+      --border: #e4e4e4;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--rot);
+      color: #fff;
+      padding: 1.25rem 1rem 0.9rem;
+      text-align: center;
+    }
+
+    header h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.4px; }
+    header .sub { font-size: 0.875rem; opacity: 0.85; margin-top: 0.2rem; }
+    header .meta { font-size: 0.72rem; opacity: 0.65; margin-top: 0.35rem; }
+
+    /* ── Sticky Filterleiste ── */
+    .filterbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .filterbar-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0.6rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 0.2rem;
+    }
+
+    .chip {
+      padding: 0.3rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: #444;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .chip:hover { border-color: var(--rot); color: var(--rot); }
+    .chip.active { background: var(--rot); border-color: var(--rot); color: #fff; }
+
+    /* ── Content ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1rem 0.75rem 2rem;
+    }
+
+    .result-info {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      padding: 0 0.1rem;
+    }
+
+    /* ── Event Card ── */
+    .event-card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.6rem;
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      gap: 0 0.85rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      transition: box-shadow 0.14s;
+      border-left: 3px solid transparent;
+    }
+
+    .event-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+
+    .event-card.kat-Musik        { border-left-color: #7c3aed; }
+    .event-card.kat-Theater      { border-left-color: #db2777; }
+    .event-card.kat-Kino         { border-left-color: #0369a1; }
+    .event-card.kat-Ausstellung  { border-left-color: #d97706; }
+    .event-card.kat-Sport        { border-left-color: #16a34a; }
+    .event-card.kat-Vortrag      { border-left-color: #0891b2; }
+    .event-card.kat-Markt-Fest   { border-left-color: #ea580c; }
+    .event-card.kat-Familie      { border-left-color: #65a30d; }
+    .event-card.kat-Fuehrung     { border-left-color: #854d0e; }
+    .event-card.kat-Sonstiges    { border-left-color: #94a3b8; }
+
+    /* Linke Spalte: Datum + Zeit */
+    .event-time-col {
+      text-align: right;
+      padding-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    .event-date {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--rot);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      line-height: 1.4;
+    }
+
+    .event-uhrzeit {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #222;
+      margin-top: 0.15rem;
+      line-height: 1;
+    }
+
+    .event-uhrzeit-end {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    /* Rechte Spalte: Inhalt */
+    .event-body {}
+
+    .event-title {
+      font-size: 0.97rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .event-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .event-title a:hover { color: var(--rot); }
+
+    .event-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      line-height: 1.45;
+    }
+
+    .event-footer {
+      margin-top: 0.45rem;
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .badge.kat {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .badge.kat-Musik        { background: #7c3aed; }
+    .badge.kat-Theater      { background: #db2777; }
+    .badge.kat-Kino         { background: #0369a1; }
+    .badge.kat-Ausstellung  { background: #d97706; }
+    .badge.kat-Sport        { background: #16a34a; }
+    .badge.kat-Vortrag      { background: #0891b2; }
+    .badge.kat-Markt-Fest   { background: #ea580c; }
+    .badge.kat-Familie      { background: #65a30d; }
+    .badge.kat-Sonstiges    { background: #94a3b8; }
+
+    .event-link {
+      font-size: 0.78rem;
+      color: var(--rot);
+      text-decoration: none;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .event-link:hover { text-decoration: underline; }
+
+    /* ── Leer-State ── */
+    #leer {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+
+    #leer p { font-size: 1.1rem; margin-bottom: 0.4rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.25rem; }
+      .event-card { grid-template-columns: 4.5rem 1fr; gap: 0 0.6rem; }
+      .event-uhrzeit { font-size: 0.95rem; }
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.72rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Was ist heute in Braunschweig?</h1>
+  <div class="sub">Events · Konzerte · Veranstaltungen auf einen Blick</div>
+  <div class="meta" id="meta">wird geladen…</div>
+</header>
+
+<div class="filterbar">
+  <div class="filterbar-inner">
+    <div class="filter-row">
+      <span class="filter-label">Zeitraum</span>
+      <button class="chip active" data-zeit="heute">Heute</button>
+      <button class="chip" data-zeit="morgen">Morgen</button>
+      <button class="chip" data-zeit="woche">Diese Woche</button>
+      <button class="chip" data-zeit="alle">Alle</button>
+    </div>
+    <div class="filter-row" id="kat-filter-row">
+      <span class="filter-label">Kategorie</span>
+      <button class="chip active" data-kat="alle">Alle</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="result-info" id="result-info"></div>
+  <div id="events-liste"></div>
+  <div id="leer" style="display:none">
+    <p>Keine Events gefunden.</p>
+    <small>Versuche einen anderen Zeitraum oder "Alle".</small>
+  </div>
+</main>
+
+<footer>Daten von braunschweig.de · die-region.de · eventbrite.de</footer>
+
+<script>
+const heute = new Date();
+heute.setHours(0, 0, 0, 0);
+
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+function parseISO(s) {
+  if (!s) return null;
+  const d = new Date(s + "T00:00:00");
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function formatDatum(iso) {
+  if (!iso) return null;
+  const d = parseISO(iso);
+  return d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" });
+}
+
+function isInRange(iso, filter) {
+  const d = parseISO(iso);
+  if (!d) return filter === "alle";
+  if (filter === "heute")  return d.getTime() === heute.getTime();
+  if (filter === "morgen") return d.getTime() === addDays(heute, 1).getTime();
+  if (filter === "woche")  return d >= heute && d <= addDays(heute, 7);
+  return true;
+}
+
+function katClass(kat) {
+  return "kat-" + (kat || "Sonstiges").replace(/[^a-zA-Z]/g, "-");
+}
+
+let alleEvents = [];
+let zeitFilter = "heute";
+let katFilter  = "alle";
+let alleKats   = [];
+
+function buildKatFilter() {
+  const row = document.getElementById("kat-filter-row");
+  const existingBtns = row.querySelectorAll("[data-kat]");
+  existingBtns.forEach(b => b.remove());
+
+  const allBtn = document.createElement("button");
+  allBtn.className = "chip" + (katFilter === "alle" ? " active" : "");
+  allBtn.dataset.kat = "alle";
+  allBtn.textContent = "Alle";
+  row.appendChild(allBtn);
+
+  alleKats.forEach(kat => {
+    const btn = document.createElement("button");
+    btn.className = "chip" + (katFilter === kat ? " active" : "");
+    btn.dataset.kat = kat;
+    btn.textContent = kat;
+    row.appendChild(btn);
+  });
+
+  row.querySelectorAll("[data-kat]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      katFilter = btn.dataset.kat;
+      buildKatFilter();
+      rendern();
+    });
+  });
+}
+
+function eventCard(e) {
+  const klass = katClass(e.kategorie);
+  const datumStr = formatDatum(e.datum) || e.datum_text || "";
+  const uhrStr = e.startzeit || "";
+  const endeStr = e.endzeit ? `bis ${e.endzeit}` : "";
+
+  const desc = e.beschreibung
+    ? `<div class="event-desc">${e.beschreibung.slice(0, 160)}${e.beschreibung.length > 160 ? "…" : ""}</div>`
+    : "";
+
+  const link = e.link
+    ? `<a class="event-link" href="${e.link}" target="_blank" rel="noopener">→ mehr</a>`
+    : "";
+
+  const ort = e.ort
+    ? `<span class="badge">${e.ort.slice(0, 40)}</span>`
+    : "";
+
+  const titel = e.link
+    ? `<a href="${e.link}" target="_blank" rel="noopener">${e.titel}</a>`
+    : e.titel;
+
+  return `
+  <div class="event-card ${klass}">
+    <div class="event-time-col">
+      ${datumStr ? `<div class="event-date">${datumStr}</div>` : ""}
+      ${uhrStr ? `<div class="event-uhrzeit">${uhrStr}</div>` : '<div class="event-uhrzeit" style="color:#ccc">–</div>'}
+      ${endeStr ? `<div class="event-uhrzeit-end">${endeStr}</div>` : ""}
+    </div>
+    <div class="event-body">
+      <div class="event-title">${titel}</div>
+      ${desc}
+      <div class="event-footer">
+        <span class="badge kat ${klass}">${e.kategorie || "Sonstiges"}</span>
+        <span class="badge">${e.quelle}</span>
+        ${ort}
+        ${link}
+      </div>
+    </div>
+  </div>`;
+}
+
+function rendern() {
+  let gefiltert = alleEvents.filter(e => {
+    const zeitOk = isInRange(e.datum, zeitFilter);
+    const katOk  = katFilter === "alle" || e.kategorie === katFilter;
+    return zeitOk && katOk;
+  });
+
+  // Fallback: wenn "heute" leer → zeige alle ohne Datum
+  if (gefiltert.length === 0 && zeitFilter === "heute") {
+    gefiltert = alleEvents.filter(e => !e.datum && (katFilter === "alle" || e.kategorie === katFilter));
+  }
+
+  const liste = document.getElementById("events-liste");
+  const leer  = document.getElementById("leer");
+  const info  = document.getElementById("result-info");
+
+  if (gefiltert.length === 0) {
+    liste.innerHTML = "";
+    leer.style.display = "block";
+    info.textContent = "";
+  } else {
+    leer.style.display = "none";
+    liste.innerHTML = gefiltert.map(eventCard).join("");
+    info.textContent = `${gefiltert.length} Veranstaltung${gefiltert.length !== 1 ? "en" : ""}`;
+  }
+}
+
+// Zeitfilter
+document.querySelectorAll("[data-zeit]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-zeit]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    zeitFilter = btn.dataset.zeit;
+    rendern();
+  });
+});
+
+// Daten laden
+fetch("events.json")
+  .then(r => r.json())
+  .then(data => {
+    alleEvents = data.events || [];
+    document.getElementById("meta").textContent =
+      `Aktualisiert: ${data.aktualisiert} · ${alleEvents.length} Events`;
+
+    // Kategorien ermitteln
+    const katSet = new Set(alleEvents.map(e => e.kategorie || "Sonstiges").filter(Boolean));
+    alleKats = [...katSet].sort();
+    buildKatFilter();
+    rendern();
+  })
+  .catch(() => {
+    document.getElementById("events-liste").innerHTML =
+      '<p style="padding:2rem;color:#888;text-align:center">Fehler beim Laden. Bitte main.py starten.</p>';
+  });
+</script>
+</body>
+</html>
