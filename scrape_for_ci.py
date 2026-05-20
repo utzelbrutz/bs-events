@@ -11,6 +11,7 @@ SCRAPER = [
     ("die-region.de",     "scraper_die_region",     "scrape_die_region",         {"max_seiten": 20}),
     ("eventbrite.de",     "scraper_eventbrite",     "scrape_eventbrite",         {}),
     ("3landesmuseen",     "scraper_landesmuseen",   "scrape_landesmuseen",       {"max_seiten": 10}),
+    ("kufa.haus",         "scraper_kufa",           "scrape_kufa",               {}),
     ("staatstheater",     "scraper_staatstheater",  "scrape_staatstheater",      {}),
     ("venues",            "scraper_venues",         "alle_venues",               {}),
 ]
