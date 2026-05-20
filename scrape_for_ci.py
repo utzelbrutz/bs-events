@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SCRAPER = [
     ("braunschweig.de",   "scraper_braunschweig",  "scrape_stadt_braunschweig", {}),
-    ("die-region.de",     "scraper_die_region",     "scrape_die_region",         {"max_seiten": 5}),
+    ("die-region.de",     "scraper_die_region",     "scrape_die_region",         {"max_seiten": 20}),
     ("eventbrite.de",     "scraper_eventbrite",     "scrape_eventbrite",         {}),
     ("3landesmuseen",     "scraper_landesmuseen",   "scrape_landesmuseen",       {"max_seiten": 10}),
     ("staatstheater",     "scraper_staatstheater",  "scrape_staatstheater",      {}),
